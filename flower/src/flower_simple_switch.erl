@@ -136,6 +136,7 @@ handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg},
 	#ofp_phy_port{name=PortNameBin}=lists:last(Ports),
 	PortName = binary_to_list(PortNameBin),
 	io:format(">> The port name is (and always will be)~w~n",[PortName]),
+	io:format("This is the laptop's change~n"),
 	{noreply, State};
 
 

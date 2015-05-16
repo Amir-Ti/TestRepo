@@ -134,7 +134,7 @@ handle_cast({{packet, in}, DataPath, Msg}, State) ->
 handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg}, State) ->
 	#ofp_phy_port{name=PortNameBin}=lists:last(Ports),
 	PortName = binary_to_list(PortNameBin),
-	io:format(">> The port name is ~w~n",[PortName]),
+	io:format(">> The port name is (and always will be)~w~n",[PortName]),
 	{noreply, State};
 
 

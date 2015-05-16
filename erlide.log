@@ -1,40 +1,65 @@
-12:55:41,735 I: (ErlangCore.java:64) : Starting CORE Thread[main,6,main]
-12:55:41,753 I: (ErlangCore.java:79) : *** starting Erlide v0.29.11.201502161407 (core=0.24.12.201502161407) (model api=0.24.11.201502161407) *** (UTF-8) ui
-12:55:41,772 I: (ErlangCore.java:86) : Started CORE
-12:55:41,773 F: (ErlangPlugin.java:88) : Core started
-12:55:42,766 F: (ErlangHostnameRetriever.java:40) : Test long hostname: null
-12:55:42,767 W: (ErlangHostnameRetriever.java:46) : Can't use null as long name
-12:55:43,692 F: (ErlangHostnameRetriever.java:40) : Test long hostname: ubuntu
-12:55:44,727 W: (ErlangHostnameRetriever.java:46) : Can't use ubuntu as long name
-12:55:45,255 F: (ErlangHostnameRetriever.java:40) : Test short hostname: ubuntu
-12:55:45,278 F: (HostnameUtils.java:74) : Detected:: ubuntu && null
-12:55:45,320 F: (BackendActivator.java:25) : Backend plugin started
-12:55:45,333 F: (BackendFactory.java:42) : Create ide backend 17.5.0
-12:55:45,334 F: (BackendFactory.java:56) : Create backend 1e474_amir_26a233_erlide
-12:55:45,436 F: (OtpNodeProxy.java:302) : Runtime 1e474_amir_26a233_erlide@ubuntu starting
-12:55:45,436 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 1e474_amir_26a233_erlide@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
-12:55:45,483 F: (OtpNodeProxy.java:213) : 1e474_amir_26a233_erlide@ubuntu: waiting connection to peer... 
-12:55:46,275 F: (OtpNodeProxy.java:220) : connected!
-12:55:46,494 F: (OtpNodeProxy.java:307) : Runtime 1e474_amir_26a233_erlide@ubuntu running
-12:55:46,499 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c26a2b6@ubuntu}
-12:55:46,501 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
-12:55:46,914 F: (ModelActivator.java:30) : Started model api
-12:55:46,982 I: (ErlideUIPlugin.java:130) : Starting UI Thread[main,6,main]
-12:55:46,995 I: (ErlideUIPlugin.java:152) : Started UI
-12:58:03,454 F: (InternalBuilder.java:202) : Will compile 20 resource(s)
-12:58:03,456 F: (BackendFactory.java:49) : Create build backend 17
-12:58:03,456 F: (BackendFactory.java:56) : Create backend 17_1e474_amir_28bdc0
-12:58:03,461 F: (OtpNodeProxy.java:302) : Runtime 17_1e474_amir_28bdc0@ubuntu starting
-12:58:03,462 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 17_1e474_amir_28bdc0@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
-12:58:03,492 F: (OtpNodeProxy.java:213) : 17_1e474_amir_28bdc0@ubuntu: waiting connection to peer... 
-12:58:03,907 F: (OtpNodeProxy.java:220) : connected!
-12:58:04,019 F: (OtpNodeProxy.java:307) : Runtime 17_1e474_amir_28bdc0@ubuntu running
-12:58:04,135 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c28bde3@ubuntu}
-12:58:04,139 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
-13:07:24,512 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
-13:07:24,519 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
-13:07:24,552 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
-13:16:31,236 F: (ErlTextHover.java:297) : otp doc {error,error}...
-13:17:12,046 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
-13:17:12,047 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
-13:17:12,080 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+13:51:38,992 I: (ErlangCore.java:64) : Starting CORE Thread[main,6,main]
+13:51:39,006 I: (ErlangCore.java:79) : *** starting Erlide v0.29.11.201502161407 (core=0.24.12.201502161407) (model api=0.24.11.201502161407) *** (UTF-8) ui
+13:51:39,021 I: (ErlangCore.java:86) : Started CORE
+13:51:39,023 F: (ErlangPlugin.java:88) : Core started
+13:51:40,073 F: (ErlangHostnameRetriever.java:40) : Test long hostname: null
+13:51:40,073 W: (ErlangHostnameRetriever.java:46) : Can't use null as long name
+13:51:40,979 F: (ErlangHostnameRetriever.java:40) : Test long hostname: ubuntu
+13:51:42,009 W: (ErlangHostnameRetriever.java:46) : Can't use ubuntu as long name
+13:51:42,324 F: (ErlangHostnameRetriever.java:40) : Test short hostname: ubuntu
+13:51:42,341 F: (HostnameUtils.java:74) : Detected:: ubuntu && null
+13:51:42,376 F: (BackendActivator.java:25) : Backend plugin started
+13:51:42,393 F: (BackendFactory.java:42) : Create ide backend 17.5.0
+13:51:42,394 F: (BackendFactory.java:56) : Create backend 1e474_amir_59dbb7_erlide
+13:51:42,479 F: (OtpNodeProxy.java:302) : Runtime 1e474_amir_59dbb7_erlide@ubuntu starting
+13:51:42,481 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 1e474_amir_59dbb7_erlide@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
+13:51:42,512 F: (OtpNodeProxy.java:213) : 1e474_amir_59dbb7_erlide@ubuntu: waiting connection to peer... 
+13:51:42,923 F: (OtpNodeProxy.java:220) : connected!
+13:51:43,036 F: (OtpNodeProxy.java:307) : Runtime 1e474_amir_59dbb7_erlide@ubuntu running
+13:51:43,154 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c59dc28@ubuntu}
+13:51:43,162 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
+13:51:43,562 F: (ModelActivator.java:30) : Started model api
+13:51:43,633 I: (ErlideUIPlugin.java:130) : Starting UI Thread[main,6,main]
+13:51:43,646 I: (ErlideUIPlugin.java:152) : Started UI
+13:51:58,976 F: (BackendFactory.java:49) : Create build backend 17
+13:51:58,977 F: (BackendFactory.java:56) : Create backend 17_1e474_amir_5a1c80
+13:51:58,980 F: (OtpNodeProxy.java:302) : Runtime 17_1e474_amir_5a1c80@ubuntu starting
+13:51:58,980 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 17_1e474_amir_5a1c80@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
+13:51:58,984 F: (OtpNodeProxy.java:213) : 17_1e474_amir_5a1c80@ubuntu: waiting connection to peer... 
+13:51:59,396 F: (OtpNodeProxy.java:220) : connected!
+13:51:59,500 F: (OtpNodeProxy.java:307) : Runtime 17_1e474_amir_5a1c80@ubuntu running
+13:51:59,602 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c5a1c87@ubuntu}
+13:51:59,604 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
+13:52:00,063 F: (ErlTextHover.java:297) : otp doc {external,timer,sleep,1,"/usr/lib/erlang/lib/stdli...
+15:30:19,032 F: (ErlTextHover.java:297) : otp doc {error,error}...
+15:30:26,063 F: (ErlTextHover.java:297) : otp doc {local,handle_call,3}...
+15:31:37,658 F: (ErlTextHover.java:297) : otp doc {local,export,1}...
+15:34:59,311 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+15:34:59,315 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+15:34:59,391 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+15:34:59,899 F: (ErlParser.java:342) : unknown: {other,{{1,1,31},2},u,[{token,'<<',1,31,2,u,"<<",u,u},{token,'<<',1,33,2,u,"<<",u,u},{token,'<<',1,35,2,u,"<<",u,u},{token,'<',1,37,1,u,"<",u,u},{token,var,1,39,4,'HEAD',"HEAD",u,u},{token,'==',2,44,2,u,"==",u,u},{token,'==',2,46,2,u,"==",u,u},{token,'==',2,48,2,u,"==",u,u},{token,'=',2,50,1,u,"=",u,u},{token,'>>',5,75,2,u,">>",u,u},{token,'>>',5,77,2,u,">>",u,u},{token,'>>',5,79,2,u,">>",u,u},{token,'>',5,81,1,u,">",u,u},{token,atom,5,83,6,branch,"branch",u,u},{token,atom,5,90,8,master,"'master'",u,u},{token,of,5,99,2,u,"of",u,u},{token,atom,5,102,5,https,"https",u,u},{token,':',5,107,1,u,":",u,u},{token,'/',5,108,1,u,"/",u,u},{token,'/',5,109,1,u,"/",u,u},{token,atom,5,110,6,github,"github",u,u},{token,'.',5,116,1,u,".",u,u},{token,atom,5,117,3,com,"com",u,u},{token,'/',5,120,1,u,"/",u,u},{token,atom,5,121,6,poptey,"poptey",u,u},{token,'/',5,127,1,u,"/",u,u},{token,var,5,128,8,'TestRepo',"TestRepo",u,u},{token,'-',7,138,1,u,"-",u,u},{token,atom,7,139,9,behaviour,"behaviour",u,u},{token,'(',7,148,1,u,"(",u,u},{token,atom,7,149,10,gen_server,"gen_server",u,u},{token,')',7,159,1,u,")",u,u},{token,dot,7,160,1,u,".",u,u}]}
+15:35:12,141 F: (ErlTextHover.java:297) : otp doc {error,{variable,'HEAD'}}...
+15:35:15,215 F: (ErlTextHover.java:297) : otp doc {error,{variable,'HEAD'}}...
+15:35:23,255 F: (ErlTextHover.java:297) : otp doc {error,{variable,'HEAD'}}...
+15:35:32,417 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+15:35:32,418 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+15:35:32,474 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+15:37:51,426 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+15:37:51,429 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+15:37:51,460 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+15:42:23,298 F: (ErlTextHover.java:297) : otp doc {error,{include,"flower_packet.hrl"}}...
+15:45:21,780 F: (ErlTextHover.java:297) : otp doc {error,{include,"flower_packet.hrl"}}...
+15:46:08,775 F: (ErlTextHover.java:297) : otp doc {error,{variable,'PortName'}}...
+15:50:25,394 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+15:50:25,395 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+15:50:25,427 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+15:53:11,501 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+15:53:11,502 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+15:53:11,531 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+16:09:33,361 F: (ErlTextHover.java:297) : otp doc {external,flower_mac_learning,lookup,2,not_found}...
+16:12:13,065 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+16:12:13,078 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+16:12:14,594 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+16:12:14,595 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+16:12:19,707 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+16:12:19,713 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl

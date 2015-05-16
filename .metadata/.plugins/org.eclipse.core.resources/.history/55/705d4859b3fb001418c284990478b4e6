@@ -1,5 +1,4 @@
 -module(flower_simple_switch).
-% a test line
 
 -behaviour(gen_server).
 
@@ -132,7 +131,6 @@ handle_cast({{packet, in}, DataPath, Msg}, State) ->
 
 handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg}, State) ->
 	io:format(">> The port is: ~p~n",[lists:last(Ports)]),
-	%111
 	{noreply, State};
 
 

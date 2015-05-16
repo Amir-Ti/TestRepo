@@ -31,3 +31,10 @@
 12:58:04,019 F: (OtpNodeProxy.java:307) : Runtime 17_1e474_amir_28bdc0@ubuntu running
 12:58:04,135 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c28bde3@ubuntu}
 12:58:04,139 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
+13:07:24,512 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+13:07:24,519 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+13:07:24,552 F: (InternalBuilder.java:202) : Will compile 1 resource(s)
+13:16:31,236 F: (ErlTextHover.java:297) : otp doc {error,error}...
+13:17:12,046 F: (InternalBuilder.java:333) : .app: ignore test/flower_nib4_SUITE.erl
+13:17:12,047 F: (InternalBuilder.java:333) : .app: ignore test/flower_packet_SUITE.erl
+13:17:12,080 F: (InternalBuilder.java:202) : Will compile 1 resource(s)

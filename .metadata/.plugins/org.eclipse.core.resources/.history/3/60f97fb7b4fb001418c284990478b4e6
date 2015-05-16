@@ -1,5 +1,4 @@
 -module(flower_simple_switch).
-% a test line
 
 -behaviour(gen_server).
 

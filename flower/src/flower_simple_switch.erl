@@ -1,7 +1,4 @@
 -module(flower_simple_switch).
-% a test line
-% test 2
-
 -behaviour(gen_server).
 
 %this is the desktop's change
@@ -16,9 +13,18 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 		 terminate/2, code_change/3]).
 
--define(SERVER, ?MODULE). 
+-define (SERVER, ?MODULE). 
+%% Topology representation:
+%% {V,List}
+%% Where 
+%%		V 		: The name of the vertex (switch), NOT the label.
+%%		List	: A list of all the vertices (switches) this vertex is connected to (undirected)
+-define (SINGLE, [{"s1",[]}]).
+-define (LINEAR_2, [{"s1",["s2"]}, {"s2",["s1"]}]). 
 
--record(state, {}).
+-record(controller_state, {
+						   network_graph	:: digraph:graph()
+						  }).
 
 %%%===================================================================
 %%% API
@@ -55,7 +61,9 @@ start_link() ->
 init([]) ->
 	flower_dispatcher:join({packet, in}), %% register this tuple in the regine server so all packet_in events are sent to us
 	flower_dispatcher:join(features_reply), %% register this event in the regine server so all feature_reply events are sent to us
-	{ok, #state{}}.
+	Graph = digraph:new([private]),
+	insert_topology(Graph,?LINEAR_2),
+	{ok, #controller_state{network_graph=Graph}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -87,14 +95,16 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
-handle_cast({{packet, in}, DataPath, Msg}, State) ->
+handle_cast({{packet, in}, DataPath, Msg}, #controller_state{network_graph = Graph}=State) ->
+	Switch = find_vert_by_label(Graph,digraph:vertices(Graph),DataPath),
+	io:format("A message came from switch ~p~n",[Switch]),
 	Flow = (catch flower_flow:flow_extract(0, Msg#ofp_packet_in.in_port, Msg#ofp_packet_in.data)),
 	case Flow of
 		#flow{} ->
 			Port = choose_destination(Flow,DataPath),
 			Actions = case Port of
 						  none -> [];
-							%% X when is_integer(X) -> [#ofp_action_enqueue{port = X, queue_id = 0}];
+						  %% X when is_integer(X) -> [#ofp_action_enqueue{port = X, queue_id = 0}];
 						  X ->
 							  [#ofp_action_output{port = X, max_len = 0}]
 					  end,% case Port
@@ -113,8 +123,8 @@ handle_cast({{packet, in}, DataPath, Msg}, State) ->
 				   %%
 				   Match = case Flow#flow.dl_type of
 							   % return a record of type #ofp_match which has set the params in vTHISv list according to
-								% the params in Flow. match#ofp_match(wildcards) will have it's param bits set to 0 for all
-								% parameters changed. '1' means "was not touched"
+							   % the params in Flow. match#ofp_match(wildcards) will have it's param bits set to 0 for all
+							   % parameters changed. '1' means "was not touched"
 							   arp -> flower_match:encode_ofp_matchflow([dl_src, dl_dst, tp_dst, tp_src, nw_proto, dl_type], Flow);
 							   % all other
 							   %
@@ -132,13 +142,18 @@ handle_cast({{packet, in}, DataPath, Msg}, State) ->
 	end,% case Flow=...
 	{noreply, State};
 
-handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg}, State) ->
+handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg}, #controller_state{network_graph = Graph}=State) ->
 	#ofp_phy_port{name=PortNameBin}=lists:last(Ports),
 	PortName = binary_to_list(PortNameBin),
-	io:format(">> The port name is (and always will be)~w~n",[PortName]),
-	io:format("This is the laptop's change~n"),
-	{noreply, State};
-
+	case digraph:vertex(Graph, PortName) of
+		false->
+			Reply = {stop, unkown_vertex,State};
+		_->
+			Reply = {noreply, State},
+			digraph:add_vertex(Graph, PortName, DataPath)
+	end,
+	io:format(">> The port name is ~w~n",[PortName]),
+	Reply;
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.
@@ -200,11 +215,11 @@ choose_destination(#flow{in_port = Port, dl_src = DlSrc, dl_dst = DlDst}, DataPa
 % insert a new {MAC,Port} key-value to the MAC list or refresh the already known set.
 learn_mac(DlSrc, VLan, DataPath, Port) ->		 
 	case flower_mac_learning:may_learn(DlSrc, VLan) of
-			true -> % bit #8 (last in first byte) is 0-> unicast address 
-				flower_mac_learning:insert(DlSrc, VLan, Port);
-			false ->
-				not_learned
-		end.
+		true -> % bit #8 (last in first byte) is 0-> unicast address 
+			flower_mac_learning:insert(DlSrc, VLan, Port);
+		false ->
+			not_learned
+	end.
 
 find_out_port(DlDst, VLan, DataPath, Port) ->
 	OutPort = case flower_mac_learning:lookup(DlDst, VLan) of
@@ -213,3 +228,32 @@ find_out_port(DlDst, VLan, DataPath, Port) ->
 				  {ok, OutPort1} -> OutPort1
 			  end,
 	OutPort.
+
+insert_topology(Graph, Topology)->
+	lists:foreach(fun(A)->
+					   {V,List} = A,
+					   case digraph:vertex(Graph,V) of
+						   false->	digraph:add_vertex(Graph, V);
+						   _	->	ok
+					   end,
+					   lists:foreach(fun(V2)->
+										  case digraph:vertex(Graph,V2) of
+											  false->	digraph:add_vertex(Graph, V2);
+											  _->		ok
+										  end,
+										  digraph:add_edge(Graph,V,V2),
+										  digraph:add_edge(Graph,V2,V)
+									 end,List)
+				  end,Topology).
+
+
+find_vert_by_label(_Graph,[],_Label)->	error;
+find_vert_by_label(Graph, [V|T],Label)->
+	case digraph:vertex(Graph, V) of
+		{_V,Label}->
+			  V;
+		_->
+			  find_vert_by_label(Graph, T,Label)
+	end.
+
+

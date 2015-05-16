@@ -1,0 +1,33 @@
+12:55:41,735 I: (ErlangCore.java:64) : Starting CORE Thread[main,6,main]
+12:55:41,753 I: (ErlangCore.java:79) : *** starting Erlide v0.29.11.201502161407 (core=0.24.12.201502161407) (model api=0.24.11.201502161407) *** (UTF-8) ui
+12:55:41,772 I: (ErlangCore.java:86) : Started CORE
+12:55:41,773 F: (ErlangPlugin.java:88) : Core started
+12:55:42,766 F: (ErlangHostnameRetriever.java:40) : Test long hostname: null
+12:55:42,767 W: (ErlangHostnameRetriever.java:46) : Can't use null as long name
+12:55:43,692 F: (ErlangHostnameRetriever.java:40) : Test long hostname: ubuntu
+12:55:44,727 W: (ErlangHostnameRetriever.java:46) : Can't use ubuntu as long name
+12:55:45,255 F: (ErlangHostnameRetriever.java:40) : Test short hostname: ubuntu
+12:55:45,278 F: (HostnameUtils.java:74) : Detected:: ubuntu && null
+12:55:45,320 F: (BackendActivator.java:25) : Backend plugin started
+12:55:45,333 F: (BackendFactory.java:42) : Create ide backend 17.5.0
+12:55:45,334 F: (BackendFactory.java:56) : Create backend 1e474_amir_26a233_erlide
+12:55:45,436 F: (OtpNodeProxy.java:302) : Runtime 1e474_amir_26a233_erlide@ubuntu starting
+12:55:45,436 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 1e474_amir_26a233_erlide@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
+12:55:45,483 F: (OtpNodeProxy.java:213) : 1e474_amir_26a233_erlide@ubuntu: waiting connection to peer... 
+12:55:46,275 F: (OtpNodeProxy.java:220) : connected!
+12:55:46,494 F: (OtpNodeProxy.java:307) : Runtime 1e474_amir_26a233_erlide@ubuntu running
+12:55:46,499 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c26a2b6@ubuntu}
+12:55:46,501 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}
+12:55:46,914 F: (ModelActivator.java:30) : Started model api
+12:55:46,982 I: (ErlideUIPlugin.java:130) : Starting UI Thread[main,6,main]
+12:55:46,995 I: (ErlideUIPlugin.java:152) : Started UI
+12:58:03,454 F: (InternalBuilder.java:202) : Will compile 20 resource(s)
+12:58:03,456 F: (BackendFactory.java:49) : Create build backend 17
+12:58:03,456 F: (BackendFactory.java:56) : Create backend 17_1e474_amir_28bdc0
+12:58:03,461 F: (OtpNodeProxy.java:302) : Runtime 17_1e474_amir_28bdc0@ubuntu starting
+12:58:03,462 F: (OtpNodeProxy.java:420) : START node :> [/usr/lib/erlang/bin/erl, -sname, 17_1e474_amir_28bdc0@ubuntu, -setcookie, erlide] *** /home/amir/Dropbox/Documents/SDN_project
+12:58:03,492 F: (OtpNodeProxy.java:213) : 17_1e474_amir_28bdc0@ubuntu: waiting connection to peer... 
+12:58:03,907 F: (OtpNodeProxy.java:220) : connected!
+12:58:04,019 F: (OtpNodeProxy.java:307) : Runtime 17_1e474_amir_28bdc0@ubuntu running
+12:58:04,135 F: (LogEventHandler.java:27) : info: {"Monitoring java node",jerlide_c28bde3@ubuntu}
+12:58:04,139 F: (LogEventHandler.java:27) : info: {"Start monitor process: ",10000000,50000000}

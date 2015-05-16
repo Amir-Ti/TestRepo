@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.erlide.backend.erlangProcess">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/flower"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="org.erlide.core.arguments" value=""/>
+<booleanAttribute key="org.erlide.core.console" value="true"/>
+<stringAttribute key="org.erlide.core.cookie" value="erlide"/>
+<intAttribute key="org.erlide.core.debugFlags" value="4"/>
+<stringAttribute key="org.erlide.core.extra_args" value=""/>
+<stringAttribute key="org.erlide.core.function" value=""/>
+<booleanAttribute key="org.erlide.core.has_backend" value="false"/>
+<listAttribute key="org.erlide.core.interpretModules">
+<listEntry value="flower:flower_app.erl"/>
+<listEntry value="flower:flower_arp.erl"/>
+<listEntry value="flower:flower_component_sup.erl"/>
+<listEntry value="flower:flower_datapath.erl"/>
+<listEntry value="flower:flower_datapath_sup.erl"/>
+<listEntry value="flower:flower_dispatcher.erl"/>
+<listEntry value="flower:flower_event.erl"/>
+<listEntry value="flower:flower_flow.erl"/>
+<listEntry value="flower:flower_icmp.erl"/>
+<listEntry value="flower:flower_mac_learning.erl"/>
+<listEntry value="flower:flower_match.erl"/>
+<listEntry value="flower:flower_nib4.erl"/>
+<listEntry value="flower:flower_packet.erl"/>
+<listEntry value="flower:flower_packet_v11.erl"/>
+<listEntry value="flower:flower_packet_v12.erl"/>
+<listEntry value="flower:flower_simple_switch.erl"/>
+<listEntry value="flower:flower_sup.erl"/>
+<listEntry value="flower:flower_tcp_transport.erl"/>
+<listEntry value="flower:flower_tools.erl"/>
+<listEntry value="flower:lrulist.erl"/>
+<listEntry value="flower:flower_nib4_SUITE.erl"/>
+<listEntry value="flower:flower_packet_SUITE.erl"/>
+</listAttribute>
+<booleanAttribute key="org.erlide.core.loadAllNodes" value="true"/>
+<booleanAttribute key="org.erlide.core.longName" value="false"/>
+<stringAttribute key="org.erlide.core.module" value=""/>
+<stringAttribute key="org.erlide.core.nodeName" value="flower"/>
+<stringAttribute key="org.erlide.core.projects" value="flower"/>
+<stringAttribute key="org.erlide.core.runtime" value="erlang"/>
+<booleanAttribute key="org.erlide.core.startMe" value="true"/>
+<stringAttribute key="org.erlide.core.working_dir" value="/home/amir/Dropbox/Documents/SDN_project/"/>
+</launchConfiguration>

@@ -1,0 +1,13 @@
+{application, flower,[
+  {description, "FlowEr: an SDN controller, written in Erlang."},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+		  regine,
+                  gen_listener_tcp
+                 ]},
+  {mod, { flower_app, []}},
+  {env, []}
+  ]}.

@@ -55,7 +55,6 @@ decode(<<Version:8/integer, Type:8/integer, Length:16/integer, Xid:32/integer,
     <<_Hdr:8/bytes, Msg:MsgLen/bytes, Rest/binary>> = Data,
     MType = ofpt(Type),
     M = decode_msg(MType, Msg),
-    ?DEBUG("decode got: ~p~n", [M]),
     decode(Rest, [#ovs_msg{version = Version, type = MType, xid = Xid, msg = M}|Acc]);
 
 decode(Rest, Acc) ->

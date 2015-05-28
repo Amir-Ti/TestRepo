@@ -1,7 +1,6 @@
 -module(flower_simple_switch).
 -behaviour(gen_server).
 
-%this is the desktop's change
 -include("flower_debug.hrl").
 -include("flower_packet.hrl").
 -include("flower_flow.hrl").
@@ -97,49 +96,92 @@ handle_call(_Request, _From, State) ->
 %%--------------------------------------------------------------------
 
 handle_cast({{packet, in}, DataPath, Msg}, #controller_state{network_graph = Graph}=State) ->
-	Switch = find_vert_by_label(Graph,digraph:vertices(Graph),DataPath),
-	io:format("A message came from switch ~p~n",[Switch]),
+	InSwitch = find_vert_by_label(Graph,digraph:vertices(Graph),DataPath),
+	io:format("A message came from {~p, ~p}, ",[InSwitch,Msg#ofp_packet_in.in_port]),
 	Flow = (catch flower_flow:flow_extract(0, Msg#ofp_packet_in.in_port, Msg#ofp_packet_in.data)),
 	case Flow of
 		#flow{} ->
-			Port = choose_destination(Flow#flow.in_port, Switch,Flow#flow.dl_src,Flow#flow.dl_dst),
-			io:format(">> lookup returned ~p~n",[Port]),
-			Actions = case Port of
-						  none -> [];
-						  %% X when is_integer(X) -> [#ofp_action_enqueue{port = X, queue_id = 0}];
-						  X ->
-							  [#ofp_action_output{port = X, max_len = 0}]% ATTENTION!!! what does this mean? what does the port number mean to the packet encoder???
-					  end,% case Port
-			%io:format("  Here in flower_simple_switch got message from: in_port ~p ~n",[Msg#ofp_packet_in.in_port]),
-			%io:format("  Destination Address ~p ~n", [Flow#flow.dl_src]),
-			%io:format("  EtherType ~p ~n", [Flow#flow.dl_type]),
-			%%io:format("  Flow ~p ~n",[Flow]),
-			%%io:format("  Packet:  ~p ~n",[flower_tools:hexdump(Msg#ofp_packet_in.data)]),
-			if Port =:= flood ->
-				   %% We don't know that MAC, or we don't set up flows.  Send along the packet without setting up a flow.
-				   flower_datapath:send_packet(DataPath, Msg#ofp_packet_in.buffer_id, Msg#ofp_packet_in.data, Actions, Msg#ofp_packet_in.in_port);
-			   true ->
-				   %% The output port is known, so add a new flow.
-				   %%=========================================================================
-				   %% Matchflow differentiation according to dl_type shall be added -- AkivaS
-				   %%
-				   Match = case Flow#flow.dl_type of
-							   % return a record of type #ofp_match which has set the params in vTHISv list according to
-							   % the params in Flow. match#ofp_match(wildcards) will have it's param bits set to 0 for all
-							   % parameters changed. '1' means "was not touched"
-							   arp -> flower_match:encode_ofp_matchflow([dl_src, dl_dst, tp_dst, tp_src, nw_proto, dl_type], Flow);
-							   % all other
-							   %
-							   % According to OpenFlow v1.0 spec, the numerical parameter (by default 32) specifies how many bits in the
-							   % address field to ignore. 0 - use exact matching, 1 - ignore LSB etc. 32 - ignore all bits of IP address
-							   _ -> flower_match:encode_ofp_matchflow([{nw_src_mask,0}, {nw_dst_mask,0}, tp_dst, tp_src, nw_proto, dl_type], Flow)
-						   end,% case Flow.dl_type
-				   %%=========================================================================
-				   %		    Match = flower_match:encode_ofp_matchflow([{nw_src_mask,32}, {nw_dst_mask,32}, nw_dst, nw_src, tp_dst, tp_src, nw_proto, dl_type], Flow),
-				   ?DEBUG("Match: ~p~n", [Match]),
-				   %               install_flow(Sw,      Match,Cookie,IdleTimeout,HardTimeout,Actions,BufferId,               Priority,InPort,                   Packet)
-				   flower_datapath:install_flow(DataPath, Match, 0,   60,         0,         Actions,Msg#ofp_packet_in.buffer_id,0,    Msg#ofp_packet_in.in_port,Msg#ofp_packet_in.data)
-			end;% if Port == flood
+			Destination = choose_destination(Flow#flow.in_port, InSwitch,Flow#flow.dl_src,Flow#flow.dl_dst),
+			io:format("lookup returned ~p~n",[Destination]),
+			case Destination of
+				none -> 
+					%%=======================================
+					%% Amir: this happens for all non-flood destinations. what do we have to do differently? drop packet maybe?
+					Match = case Flow#flow.dl_type of
+								arp -> flower_match:encode_ofp_matchflow([dl_src, dl_dst, tp_dst, tp_src, nw_proto, dl_type], Flow);
+								_ -> flower_match:encode_ofp_matchflow([{nw_src_mask,0}, {nw_dst_mask,0}, tp_dst, tp_src, nw_proto, dl_type], Flow)
+							end,% case Flow.dl_type
+					%%                                                                vHEREv is where the *old* Actions was, now an empty list
+					flower_datapath:install_flow(DataPath, Match, 0,   60,         0,   []   ,Msg#ofp_packet_in.buffer_id,0,    Msg#ofp_packet_in.in_port,Msg#ofp_packet_in.data);
+					%%=======================================
+				flood->
+					%% We don't know that MAC, or we don't set up flows.  Send along the packet without setting up a flow.
+					flower_datapath:send_packet(DataPath, Msg#ofp_packet_in.buffer_id, Msg#ofp_packet_in.data, [#ofp_action_output{port = flood, max_len = 0}], Msg#ofp_packet_in.in_port);
+				{DstSwitch,DstPort} ->
+					ShortPathList = case DstSwitch of
+										InSwitch-> [InSwitch];
+										_-> digraph:get_short_path(Graph, InSwitch, DstSwitch)
+									end,
+					io:format("The shortest path to that destination is ~p~n~n",[ShortPathList]),
+					%%%################ This is where the magic happens: do this to ALL the switches!!
+					%% The output port is known, so add a new flow.
+					%%=========================================================================
+					%% Matchflow differentiation according to dl_type shall be added -- AkivaS
+					%%
+					Match = case Flow#flow.dl_type of
+								% return a record of type #ofp_match which has set the params in vTHISv list according to
+								% the params in Flow. match#ofp_match(wildcards) will have it's param bits set to 0 for all
+								% parameters changed. '1' means "was not touched"
+								arp -> flower_match:encode_ofp_matchflow([dl_src, dl_dst, tp_dst, tp_src, nw_proto, dl_type], Flow);
+								% all other
+								%
+								% According to OpenFlow v1.0 spec, the numerical parameter (by default 32) specifies how many bits in the
+								% address field to ignore. 0 - use exact matching, 1 - ignore LSB etc. 32 - ignore all bits of IP address
+								_ -> flower_match:encode_ofp_matchflow([{nw_src_mask,0}, {nw_dst_mask,0}, tp_dst, tp_src, nw_proto, dl_type], Flow)
+							end,% case Flow.dl_type
+					%%=========================================================================
+					%		    Match = flower_match:encode_ofp_matchflow([{nw_src_mask,32}, {nw_dst_mask,32}, nw_dst, nw_src, tp_dst, tp_src, nw_proto, dl_type], Flow),
+					%               install_flow(Sw,      Match,Cookie,IdleTimeout,HardTimeout,Actions,BufferId,               Priority,InPort,                   Packet)
+					flower_datapath:install_flow(DataPath, Match, 0,   60,         0,         [#ofp_action_output{port = DstPort, max_len = 0}],Msg#ofp_packet_in.buffer_id,0,    Msg#ofp_packet_in.in_port,Msg#ofp_packet_in.data)
+			end;% case Destination
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			Actions = case Destination of
+%						  none -> 
+%							  io:format("Action is none. Why??~n"),
+%							  [];
+%						  flood->
+%							  [#ofp_action_output{port = flood, max_len = 0}];
+%						  {DstSwitch,DstPort} ->
+%							  io:format("The shortest path to that destination is ~p~n~n",[case DstSwitch of
+%																							   InSwitch-> [InSwitch];
+%																							   _-> digraph:get_short_path(Graph, InSwitch, DstSwitch)
+%																						   end]),
+%							  [#ofp_action_output{port = DstPort, max_len = 0}]
+%					  end,% case Destination
+%			if Destination =:= flood ->
+%				   %% We don't know that MAC, or we don't set up flows.  Send along the packet without setting up a flow.
+%				   flower_datapath:send_packet(DataPath, Msg#ofp_packet_in.buffer_id, Msg#ofp_packet_in.data, Actions, Msg#ofp_packet_in.in_port);
+%			   true ->
+%				   %% The output port is known, so add a new flow.
+%				   %%=========================================================================
+%				   %% Matchflow differentiation according to dl_type shall be added -- AkivaS
+%				   %%
+%				   Match = case Flow#flow.dl_type of
+%							   % return a record of type #ofp_match which has set the params in vTHISv list according to
+%							   % the params in Flow. match#ofp_match(wildcards) will have it's param bits set to 0 for all
+%							   % parameters changed. '1' means "was not touched"
+%							   arp -> flower_match:encode_ofp_matchflow([dl_src, dl_dst, tp_dst, tp_src, nw_proto, dl_type], Flow);
+%							   % all other
+%							   %
+%							   % According to OpenFlow v1.0 spec, the numerical parameter (by default 32) specifies how many bits in the
+%							   % address field to ignore. 0 - use exact matching, 1 - ignore LSB etc. 32 - ignore all bits of IP address
+%							   _ -> flower_match:encode_ofp_matchflow([{nw_src_mask,0}, {nw_dst_mask,0}, tp_dst, tp_src, nw_proto, dl_type], Flow)
+%						   end,% case Flow.dl_type
+%				   %%=========================================================================
+%				   %		    Match = flower_match:encode_ofp_matchflow([{nw_src_mask,32}, {nw_dst_mask,32}, nw_dst, nw_src, tp_dst, tp_src, nw_proto, dl_type], Flow),
+%				   %               install_flow(Sw,      Match,Cookie,IdleTimeout,HardTimeout,Actions,BufferId,               Priority,InPort,                   Packet)
+%				   flower_datapath:install_flow(DataPath, Match, 0,   60,         0,         Actions,Msg#ofp_packet_in.buffer_id,0,    Msg#ofp_packet_in.in_port,Msg#ofp_packet_in.data)
+%			end;% if Port == flood
 		_ ->
 			io:format("Flow not found! That's bad...~n")
 	end,% case Flow=...
@@ -150,13 +192,11 @@ handle_cast({features_reply, DataPath, #ofp_switch_features{ports=Ports}= _Msg},
 	PortName = binary_to_list(PortNameBin),
 	case digraph:vertex(Graph, PortName) of
 		false->
-			Reply = {stop, unkown_vertex,State};
+			{stop, unkown_vertex,State};
 		_->
-			Reply = {noreply, State},
-			digraph:add_vertex(Graph, PortName, DataPath)
-	end,
-	io:format(">> The port name is ~w~n",[PortName]),
-	Reply;
+			digraph:add_vertex(Graph, PortName, DataPath),
+			{noreply, State}
+	end;
 
 handle_cast(_Msg, State) ->
 	{noreply, State}.

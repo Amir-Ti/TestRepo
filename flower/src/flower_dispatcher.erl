@@ -22,7 +22,6 @@ start_link() ->
     regine_server:start_link({local, ?SERVER}, ?MODULE, []).
 
 join(Event) ->
-	io:format(">> ~p: I am registering ~p to my name.~n",[self(),Event]),
     regine_server:register(?SERVER, self(), Event, self()).
 
 leave(Event) ->

@@ -293,14 +293,12 @@ setup(_Msg, _From, State) ->
 
 open({hello, Version, Xid, _Msg}, State)  when Version > ?VERSION ->
 	%io:format(">> in open (hello), error~n"),
-	?DEBUG("got hello in open"),
 	Reply = #ofp_error{error = hello_failed, data = incompatible},
 	send_pkt(error, Xid, Reply, {stop, normal, State});
 
 % (( 2 )) ###########
 open({hello, Version, _Xid, _Msg}, State) ->
 	%%io:format(">> in open (hello ver. ~p)~n",[Version]),
-	?DEBUG("got hello in open"),
 	%% Accept their Idea of version if we support it
 	NewState = State#state{version = Version},
 	send_request(features_request, <<>>, {next_state, connecting, NewState, ?REQUEST_TIMEOUT});
@@ -308,7 +306,6 @@ open({hello, Version, _Xid, _Msg}, State) ->
 open(Msg, State)
   when element(1, Msg) =:= send ->
 	%io:format(">> in open (send), msg is ~p~n",[Msg]),
-	?DEBUG("ignoring send in state open, Msg was: ~p~n", [Msg]),
 	{next_state, open, State}.
 
 open(_Msg, _From, State) ->
@@ -356,7 +353,6 @@ connected({timeout, _Ref, Xid}, State) ->
 
 connected({features_reply, _Version, _Xid, Msg}, State) ->
 	%io:format(">> in connected (features_reply)~n"),
-	?DEBUG("got features_reply in connected"),
 	{next_state, connected, State#state{features = Msg}};
 
 connected({echo_request, _Version, Xid, _Msg}, State) ->
@@ -510,7 +506,6 @@ handle_info({tcp, Socket, Data}, StateName, #state{socket = Socket} = State) ->
 	
 	State0 = inc_counter(State, recv, raw_packets),
 	State1 = State0#state{pending = DataRest},
-	?DEBUG("handle_info: decoded: ~p~nrest: ~p~n", [Msg, DataRest]),
 	case Msg of
 		[] -> 
 			ok = inet:setopts(Socket, [{active, once}]),

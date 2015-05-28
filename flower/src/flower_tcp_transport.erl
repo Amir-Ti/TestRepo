@@ -79,10 +79,8 @@ handle_accept(Sock, State) ->
 %%%===================================================================
 %%% AkivaS
 %%%===================================================================
-     %io:format(">> flower_tcp_transport:handle_accept from state ~p~n",[State]),
     case inet:peername(Sock) of
         {ok,{IpAddress,Port}} ->
-          %io:format(">> flower_tcp_transport:handle_accept Connection from ~p~n",[{IpAddress, Port}]);
 			ok;
         {error,Why} ->
           io:format(">> flower_tcp_transport:handle_accept Cannot get information about connection ~p~n",[Why])
@@ -109,8 +107,7 @@ handle_cast(_Request, State) ->
 handle_info(_Info, State) ->
     {noreply, State}.
 
-terminate(Reason, _State) ->
-    ?DEBUG("flower_tcp_listener terminate on ~p", [Reason]),% defiend in flower debug.hrl
+terminate(_Reason, _State) ->
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

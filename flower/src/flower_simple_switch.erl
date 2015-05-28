@@ -209,7 +209,6 @@ choose_destination(#flow{in_port = Port, dl_src = DlSrc, dl_dst = DlDst}, DataPa
 					  find_out_port(DlDst, 0, DataPath, Port);
 				  true -> none
 			  end,
-	?DEBUG("Verdict: ~p", [OutPort]),
 	OutPort.
 
 % insert a new {MAC,Port} key-value to the MAC list or refresh the already known set.

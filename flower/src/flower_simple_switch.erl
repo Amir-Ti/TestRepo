@@ -13,6 +13,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 		 terminate/2, code_change/3]).
 
+
 -define (SERVER, ?MODULE). 
 %% Topology representation:
 %% {V,List}
@@ -101,12 +102,13 @@ handle_cast({{packet, in}, DataPath, Msg}, #controller_state{network_graph = Gra
 	Flow = (catch flower_flow:flow_extract(0, Msg#ofp_packet_in.in_port, Msg#ofp_packet_in.data)),
 	case Flow of
 		#flow{} ->
-			Port = choose_destination(Flow,DataPath),
+			Port = choose_destination(Flow#flow.in_port, Switch,Flow#flow.dl_src,Flow#flow.dl_dst),
+			io:format(">> lookup returned ~p~n",[Port]),
 			Actions = case Port of
 						  none -> [];
 						  %% X when is_integer(X) -> [#ofp_action_enqueue{port = X, queue_id = 0}];
 						  X ->
-							  [#ofp_action_output{port = X, max_len = 0}]
+							  [#ofp_action_output{port = X, max_len = 0}]% ATTENTION!!! what does this mean? what does the port number mean to the packet encoder???
 					  end,% case Port
 			%io:format("  Here in flower_simple_switch got message from: in_port ~p ~n",[Msg#ofp_packet_in.in_port]),
 			%io:format("  Destination Address ~p ~n", [Flow#flow.dl_src]),
@@ -135,7 +137,8 @@ handle_cast({{packet, in}, DataPath, Msg}, #controller_state{network_graph = Gra
 				   %%=========================================================================
 				   %		    Match = flower_match:encode_ofp_matchflow([{nw_src_mask,32}, {nw_dst_mask,32}, nw_dst, nw_src, tp_dst, tp_src, nw_proto, dl_type], Flow),
 				   ?DEBUG("Match: ~p~n", [Match]),
-				   flower_datapath:install_flow(DataPath, Match, 0, 60, 0, Actions, Msg#ofp_packet_in.buffer_id, 0, Msg#ofp_packet_in.in_port, Msg#ofp_packet_in.data)
+				   %               install_flow(Sw,      Match,Cookie,IdleTimeout,HardTimeout,Actions,BufferId,               Priority,InPort,                   Packet)
+				   flower_datapath:install_flow(DataPath, Match, 0,   60,         0,         Actions,Msg#ofp_packet_in.buffer_id,0,    Msg#ofp_packet_in.in_port,Msg#ofp_packet_in.data)
 			end;% if Port == flood
 		_ ->
 			io:format("Flow not found! That's bad...~n")
@@ -200,49 +203,49 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
-choose_destination(#flow{in_port = Port, dl_src = DlSrc, dl_dst = DlDst}, DataPath) ->
+%choose_destination(#flow{in_port = Port, dl_src = DlSrc, dl_dst = DlDst}, DataPath) ->
+choose_destination(InPort, InSwitch, DlSrc, DlDst) ->
 	% start by checking whether the DlSrc address is a reserved Multicast address
 	OutPort = case flower_mac_learning:eth_addr_is_reserved(DlSrc) of
 				  % Always use VLan = 0 to implement Shared VLAN Learning
 				  false -> 
-					  learn_mac(DlSrc, 0, DataPath, Port),
-					  find_out_port(DlDst, 0, DataPath, Port);
+					  learn_mac(DlSrc, InSwitch, InPort),
+					  find_out_dest(DlDst, InSwitch, InPort);
 				  true -> none
 			  end,
 	OutPort.
 
 % insert a new {MAC,Port} key-value to the MAC list or refresh the already known set.
-learn_mac(DlSrc, VLan, DataPath, Port) ->		 
-	case flower_mac_learning:may_learn(DlSrc, VLan) of
+learn_mac(DlSrc, InSwitch, InPort) ->		 
+	case flower_mac_learning:may_learn(DlSrc) of
 		true -> % bit #8 (last in first byte) is 0-> unicast address 
-			flower_mac_learning:insert(DlSrc, VLan, Port);
+			flower_mac_learning:insert(DlSrc, InSwitch, InPort); % insert MAC as key and {InSwitch, InPort} as it's value
 		false ->
 			not_learned
 	end.
 
-find_out_port(DlDst, VLan, DataPath, Port) ->
-	OutPort = case flower_mac_learning:lookup(DlDst, VLan) of
-				  none -> flood;
-				  {ok, Port} -> none; %% Don't send a packet back out its input port.
-				  {ok, OutPort1} -> OutPort1
-			  end,
-	OutPort.
+find_out_dest(DlDst, InSwitch, InPort) ->
+	case flower_mac_learning:lookup(DlDst) of
+		none -> flood;
+		{ok, {InSwitch,InPort}} -> none; %% Don't send a packet back out its input port.
+		{ok, FinalDest} -> FinalDest
+	end.
 
 insert_topology(Graph, Topology)->
 	lists:foreach(fun(A)->
-					   {V,List} = A,
-					   case digraph:vertex(Graph,V) of
-						   false->	digraph:add_vertex(Graph, V);
-						   _	->	ok
-					   end,
-					   lists:foreach(fun(V2)->
-										  case digraph:vertex(Graph,V2) of
-											  false->	digraph:add_vertex(Graph, V2);
-											  _->		ok
-										  end,
-										  digraph:add_edge(Graph,V,V2),
-										  digraph:add_edge(Graph,V2,V)
-									 end,List)
+						  {V,List} = A,
+						  case digraph:vertex(Graph,V) of
+							  false->	digraph:add_vertex(Graph, V);
+							  _	->	ok
+						  end,
+						  lists:foreach(fun(V2)->
+												case digraph:vertex(Graph,V2) of
+													false->	digraph:add_vertex(Graph, V2);
+													_->		ok
+												end,
+												digraph:add_edge(Graph,V,V2),
+												digraph:add_edge(Graph,V2,V)
+										end,List)
 				  end,Topology).
 
 
@@ -250,9 +253,9 @@ find_vert_by_label(_Graph,[],_Label)->	error;
 find_vert_by_label(Graph, [V|T],Label)->
 	case digraph:vertex(Graph, V) of
 		{_V,Label}->
-			  V;
+			V;
 		_->
-			  find_vert_by_label(Graph, T,Label)
+			find_vert_by_label(Graph, T,Label)
 	end.
 
 

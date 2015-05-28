@@ -3,7 +3,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, insert/2, insert/3, lookup/1, lookup/2,
+-export([start_link/0, insert/2, insert/3, lookup/1,
 	 expire/0, may_learn/1, may_learn/2, eth_addr_is_reserved/1,
 	 dump/0]).
 
@@ -37,14 +37,12 @@ start_link() ->
 insert(MAC, Port) ->
     insert(MAC, 0, Port).
 
-insert(MAC, VLan, Port) ->
-    gen_server:call(?SERVER, {insert, MAC, VLan, Port}).
+insert(MAC, Switch, Port) ->
+    gen_server:call(?SERVER, {insert, MAC, Switch, Port}).
 
 lookup(MAC) ->
-    lookup(MAC, 0).
+    gen_server:call(?SERVER, {lookup, MAC}).
 
-lookup(MAC, VLan) ->
-    gen_server:call(?SERVER, {lookup, MAC, VLan}).
 
 dump() ->
     gen_server:call(?SERVER, {dump}).
@@ -118,16 +116,16 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({insert, MAC, VLan, Port}, _From, #state{lru = LRU} = State) ->
+handle_call({insert, MAC, Switch, Port}, _From, #state{lru = LRU} = State) ->
 	% get the port asociated with this MAC and VLAN. 'none' if there isn't a match
-    {Result, LRU0} =  lrulist:get({MAC, VLan}, LRU),
+    {Result, LRU0} =  lrulist:get(MAC, LRU),
     {Reply, LRU1} = case Result of
 			none ->
-			    {ok, NewLRU} = lrulist:insert({MAC, VLan}, Port, LRU0, [{slidingexpire, ?MAC_ENTRY_IDLE_TIME}]),
+			    {ok, NewLRU} = lrulist:insert(MAC, {Switch,Port} , LRU0, [{slidingexpire, ?MAC_ENTRY_IDLE_TIME}]),
 			    {new, NewLRU};
 			{ok, Data} ->
-			    if (Data =/= Port) ->
-				    {ok, NewLRU} = lrulist:insert({MAC, VLan}, Port, LRU0, [{slidingexpire, ?MAC_ENTRY_IDLE_TIME}]),
+			    if (Data =/= {Switch,Port}) ->
+				    {ok, NewLRU} = lrulist:insert(MAC, {Switch,Port}, LRU0, [{slidingexpire, ?MAC_ENTRY_IDLE_TIME}]),
 				    {updated, NewLRU};
 			       true ->
 						% we DO NOT need to update the expiry date on this entry
@@ -137,8 +135,8 @@ handle_call({insert, MAC, VLan, Port}, _From, #state{lru = LRU} = State) ->
 		    end,
     {reply, Reply, State#state{lru = LRU1}};
 
-handle_call({lookup, MAC, VLan}, _From, #state{lru = LRU} = State) ->
-    {Result, LRU0} =  lrulist:peek({MAC, VLan}, LRU),
+handle_call({lookup, MAC}, _From, #state{lru = LRU} = State) ->
+    {Result, LRU0} =  lrulist:peek(MAC, LRU),
     {reply, Result, State#state{lru = LRU0}};
 
 handle_call({dump}, _From, #state{lru = LRU} = State) ->

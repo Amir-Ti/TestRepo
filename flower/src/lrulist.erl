@@ -138,8 +138,6 @@ purge_run(Now, {Expire, _}, LRUL)
 	LRUL;
 purge_run(Now, {Expire, Keys}, {Tree, LRUTree}) ->
 	Empty = gb_trees:empty(),
-	io:format("~nDumping  Tree ~p~n",[dump(Tree)]),
-	io:format("~nDumping  LRUTree ~p~n",[dump(LRUTree)]),  %% AkivaS
 	NewTree = lists:foldl(fun(_Key, ATree) when ATree =:= Empty -> ATree;
 							 (Key, ATree) ->
 								  gb_trees:delete(Key, ATree)

@@ -640,7 +640,7 @@ send_request(Type, Msg, NextStateInfo) ->
 	State = element(3, NextStateInfo),
 	NewState = inc_xid(State), % state.xid++
 	NewNextStateInfo = setelement(3, NextStateInfo, NewState),
-	%% is so NewNextStateInfo has its State.xid in place 3 increased by 1. unkown why yet...
+	%% is so NewNextStateInfo has its State.xid in place 3 increased by 1. it is the trasaction ID aka xID
 	send_pkt(Type, NewState#state.xid, Msg, NewNextStateInfo).
 
 send_pkt(Type, Xid, Msg, NextStateInfo) ->
